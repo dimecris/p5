@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 // Reloj Gaza — boceto base (Kris)
-=======
-// Reloj Gaza — boceto base (Kris) 
-// Beta
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
 // Mapping: izq=segundos, centro=minutos (líneas), dcha=horas (y sol)
 
 // --------------------------
@@ -18,17 +13,10 @@ const P = {
   red: "#e4312b",
   green: "#149954",
   greenlight: "#7fe5b0ff",
-<<<<<<< HEAD
   grey: "#9B9B9B"
 };
 
 // variables de layout (se calculan en computeLayout)
-=======
-  grey: "#b9b7b7"
-};
-
-// variables de layout (se calculan en computeLayout). 
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
 let margin, 
     colLeftX, colRightX,   // columnas izq y dcha
     bloqueX1, bloqueX2,    // coordenada x inicial y final del bloque de líneas
@@ -69,16 +57,13 @@ function labelFromIndex(i) {
 // --- Ciclo de vida ---
 // --------------------------
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
 function preload() {
   f = loadFont("assets/Barlow/Barlow-Regular.ttf"); //fuente importada desde google fonts
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+
   textFont(f);
   textAlign(CENTER, CENTER);
   noStroke();
@@ -104,70 +89,6 @@ function windowResized() {
 }
 
 
-// --------------------------
-// --- Interacción usuaria: Simulación hora ---
-// --------------------------
-
-function keyPressed() {
-  // Atajos rápidos con flechas
-<<<<<<< HEAD
-  if (keyCode === UP_ARROW)   { manualHour   = ((manualHour ?? hour()) + 1) % 24; } // revisa que manualHour no sea null y le suma 1. Si es null usa la hora del sistema. ((x % n) + n) % n garantiza siempre un resultado positivo.
-  if (keyCode === DOWN_ARROW) { manualHour   = ((manualHour ?? hour()) - 1) % 24; }
-  if (keyCode === RIGHT_ARROW){ manualMinute = ((manualMinute ?? minute()) + 1) % 60; }
-  if (keyCode === LEFT_ARROW) { manualMinute = ((manualMinute ?? minute()) - 1) % 60; }
-=======
-  if (keyCode === UP_ARROW)   { manualHour   = ((manualHour ?? hour()) + 1) % 24; } // revisa que manualHour no sea null y le suma 1. Si es null usa la hora del sistema
-  if (keyCode === DOWN_ARROW) { manualHour   = ((manualHour ?? hour()) - 1) % 24; }
-  if (keyCode === RIGHT_ARROW){ manualMinute = ((manualMinute ?? minute()) + 1) % 60; }
-  if (keyCode === LEFT_ARROW) { manualMinute = ((manualMinute ?? minute()) - 1) % 60; }
-
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
-}
-
-function doubleClicked() { // resetea a hora del sistema
-  manualHour = null;
-  manualMinute = null;
-}
-
-// --------------------------
-// --- Layout ---
-// --------------------------
-
-function computeLayout() {
-<<<<<<< HEAD
-  margin = min(width, height) * 0.10;   // margen base relativo
-  const MAX_WIDTH = 1100;                // ancho máximo del contenido
-
-  // Calcula el ancho del contenedor (nunca más de MAX_WIDTH)
-  const containerW = min(width - margin * 2, MAX_WIDTH);
-
-  // Calcula coordenadas del contenedor centrado
-  const containerX1 = (width - containerW) / 2;
-  const containerX2 = containerX1 + containerW;
-
-  // Usa el contenedor para las referencias
-  colLeftX  = containerX1 + margin * 0.5;
-  colRightX = containerX2 - margin * 0.5;
-
-  stackX1 = containerX1 + margin;
-  stackX2 = containerX2 - margin;
-
-  bloqueX1 = containerX1 + margin * 1.8; // coordenada x inicial del bloque de minutos (líneas horizontales)
-  bloqueX2 = containerX2 - margin * 1.8; // coordenada x final del bloque de minutos
-=======
-  margin = min(width, height) * 0.16; // toma como valor el lado menor, dependiendo de la orientación
-
-  colLeftX  = margin * 1.5; // situamos columna de segundos en el lado izquierdo
-  colRightX = width - margin * 1.5; // situamos columna de horas en el lado derecho
-
-  bloqueX1 = margin * 2.2; // coordenada x inicial del bloque de minutos (líneas horizontales)
-  bloqueX2 = width - margin * 2.2; // coordenada x final del bloque de minutos
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
-
-  const bloqueH = height * 0.70;  // altura del bloque de minutos y segundos (se ocupan 3/4 partes de la altur de la pantalla)
-  baseY = height * 0.85;       // base del bloque de minutos y segundos
-  lineH = bloqueH / 60;           // 60 líneas máximas
-}
 
 
 // --------------------------
@@ -193,19 +114,67 @@ function draw() {
   drawMinutosLinea(m, s);
   drawHorasColumn(h);
 
-<<<<<<< HEAD
   drawHeaderTime(h, m, margin -10, margin * 0.2);   // HH:MM arriba izq
   drawHeaderTitle('ANAGNÓRISIS','Reconocimiento de \nla identidad por otros', width-margin, margin * 0.1);
   drawElapsedSince('1917-11-02T05:30:00', '11 NOV 1917'); // Mostrar tiempo transcurrido desde 07/10/2023 (día, horas)
   drawSignature('CC BY-NC-SA 4.0 - Kris Darias - 2025');     // autoría y título
   drawInfo();
-=======
-  drawHeaderTime(h, m, bloqueX1, margin * 0.2);   // HH:MM arriba izq
-  drawHeaderTitle('ANAGNÓRISIS','Reconocimiento de la identidad por otros', bloqueX2, margin * 0.2);
-  drawElapsedSince('1917-11-02T05:30:00', '11 NOV 1917', bloqueX2,height - margin * 0.4); // Mostrar tiempo transcurrido desde 07/10/2023 (día, horas)
-  drawSignature('CC BY-NC-SA 4.0 - Kris Darias', bloqueX1, height - margin * 0.4);        // autoría y título
+}
 
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
+// --------------------------
+// --- Interacción usuaria: Simulación hora ---
+// --------------------------
+
+function keyPressed() {
+// Atajos rápidos con flechas
+if (keyCode === UP_ARROW) {
+  manualHour = (((manualHour ?? hour()) + 1) % 24 + 24) % 24;// revisa que manualHour no sea null y le suma 1. Si es null usa la hora del sistema. Utiliza ((x % n) + n) % n garantiza siempre un resultado positivo.
+}
+if (keyCode === DOWN_ARROW) {
+  manualHour = (((manualHour ?? hour()) - 1) % 24 + 24) % 24;
+}
+if (keyCode === RIGHT_ARROW) {
+  manualMinute = (((manualMinute ?? minute()) + 1) % 60 + 60) % 60;
+}
+if (keyCode === LEFT_ARROW) {
+  manualMinute = (((manualMinute ?? minute()) - 1) % 60 + 60) % 60;
+}
+
+}
+
+function doubleClicked() { // resetea a hora del sistema
+  manualHour = null;
+  manualMinute = null;
+}
+
+// --------------------------
+// --- Layout ---
+// --------------------------
+
+function computeLayout() {
+  margin = min(width, height) * 0.10;   // margen base relativo
+  const MAX_WIDTH = 1100;                // ancho máximo del contenido
+
+  // Calcula el ancho del contenedor (nunca más de MAX_WIDTH)
+  const containerW = min(width - margin * 2, MAX_WIDTH);
+
+  // Calcula coordenadas del contenedor centrado
+  const containerX1 = (width - containerW) / 2;
+  const containerX2 = containerX1 + containerW;
+
+  // Usa el contenedor para las referencias
+  colLeftX  = containerX1 + margin * 0.5;
+  colRightX = containerX2 - margin * 0.5;
+
+  stackX1 = containerX1 + margin;
+  stackX2 = containerX2 - margin;
+
+  bloqueX1 = containerX1 + margin * 1.8; // coordenada x inicial del bloque de minutos (líneas horizontales)
+  bloqueX2 = containerX2 - margin * 1.8; // coordenada x final del bloque de minutos
+
+  const bloqueH = height * 0.70;  // altura del bloque de minutos y segundos (se ocupan 3/4 partes de la altur de la pantalla)
+  baseY = height * 0.85;       // base del bloque de minutos y segundos
+  lineH = bloqueH / 60;           // 60 líneas máximas
 }
 
 
@@ -218,15 +187,9 @@ function draw() {
 function drawGrid() {
   stroke(P.grid);
   strokeWeight(1);
-<<<<<<< HEAD
   const gridStep = 18;
   for (let y = gridStep/2; y < height; y += gridStep) {    // filas
     for (let x = gridStep/2; x < width; x += gridStep) {  // columnas
-=======
-  const step = 18;
-  for (let y = step/2; y < height; y += step) {    // filas
-    for (let x = step/2; x < width; x += step) {  // columnas
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
       point(x, y);
     }
   }
@@ -242,21 +205,13 @@ function drawSecondsColumn(segundoActual) {
   for (let i = 0; i <= 60; i += 5) {
     const y = map(i, 0, 60, baseY, baseY - lineH * 60) + lineH * 0.5;
     fill(i === segundoActual ? P.red : P.black);
-<<<<<<< HEAD
     text(nf(i, 2), colLeftX - 10, y);
-=======
-    text(nf(i, 2), colLeftX + 10, y);
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
   }
 
   // marcador del segundo actual (punto rojo). Mapea 0..59 a la posición y correspondiente
   const yDot = map(segundoActual, 0, 59, baseY, baseY - lineH * 59); // map(valor, start1, stop1, start2, stop2)
   fill(P.red);
-<<<<<<< HEAD
   circle(colLeftX +8, yDot, 6);
-=======
-  circle(colLeftX, yDot, 6);
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
 }
 
 function drawMinutosLinea(minutoActual, segundoActual) {
@@ -268,11 +223,7 @@ function drawMinutosLinea(minutoActual, segundoActual) {
       // líneas completas ya acabadas
       stroke(P.black); 
       strokeWeight(3);
-<<<<<<< HEAD
       drawHandLine(i, bloqueX1, y, bloqueX2, 1);
-=======
-      drawHandLine(i, bloqueX1, y, bloqueX2, y, 1);
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
     } else if (i === minutoActual) {
       // línea del minuto actual: se va completando con los segundos
       const portion = constrain(segundoActual / 59, 0, 1); // 0..1
@@ -383,11 +334,7 @@ function drawFooterBase() {
 function drawHeaderTime(h, m, x, y) {
   fill(P.black);
   textAlign(LEFT, TOP);
-<<<<<<< HEAD
   textSize(35);
-=======
-  textSize(40);
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
   text(nf(h, 2) + ":" + nf(m, 2), x, y);
 }
 
@@ -397,7 +344,6 @@ function drawHeaderTitle(h1,h2,x,y) {
   textSize(30);
   text(h1.toLocaleUpperCase(), x,y);
   textSize(14);
-<<<<<<< HEAD
   text(h2.toLocaleUpperCase(), x,y+35);
 }
 
@@ -433,22 +379,6 @@ function drawSignature(txt) {
 
 // Dibuja en pantalla el tiempo transcurrido desde una fecha ISO (YYYY-MM-DDTHH:MM:SS)
 function drawElapsedSince(isoDate, fechaInicio) {
-=======
-  text(h2.toLocaleUpperCase(), x,y*3);
-}
-
-function drawSignature(txt, x,y) {
-  textAlign(LEFT, BOTTOM);
-  fill(P.black);
-  textSize(14);
-  text(txt.toLocaleUpperCase(), x,y /0.95);
-  const txt2 = 'Simulation: hora (RIGHT-LEFT)  minutos (UP-DOWN)\ndoble click = hora sistema';
-  text(txt2.toLocaleUpperCase(), x,y);
-
-}
-// Dibuja en pantalla el tiempo transcurrido desde una fecha ISO (YYYY-MM-DDTHH:MM:SS)
-function drawElapsedSince(isoDate, fechaInicio, x, y) {
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
   const since = new Date(isoDate);
   const now = new Date();
   let deltaMs = now - since; // milisegundos
@@ -463,20 +393,12 @@ function drawElapsedSince(isoDate, fechaInicio, x, y) {
   deltaMs -= hours * msPerHour;
   const minutes = Math.floor(deltaMs / (1000 * 60));
 
-<<<<<<< HEAD
   const txt = `${days} días \n${hours} horas, ${minutes} minutos \n ${fechaInicio}`;
-=======
-  const txt = `${days} días, ${hours} horas, ${minutes} minutos \n ${fechaInicio}`;
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
 
   push();
   textAlign(RIGHT, BOTTOM);
   textSize(14);
   fill(P.black);
-<<<<<<< HEAD
   text(txt.toUpperCase(), width-margin,height - margin * 0.4 );
-=======
-  text(txt.toUpperCase(), x, y);
->>>>>>> 484824a7380460734e504d497fcd9be3f2695b21
   pop();
 }
