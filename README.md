@@ -20,7 +20,7 @@ Gracias a **GitHub Pages**, puedes ejecutar los sketches directamente desde el n
 ---
 ## 📁 Estructura del repositorio
 
-```text
+~~~~
 p5js-lab/
 ├─ proyecto2/
 │  └─ image_IA/
@@ -30,7 +30,7 @@ p5js-lab/
 ├─ reloj-gaza/
 │  └─ reloj/
 └─ README.md
-
+~~~~
 
 ## ⚙️ Cómo ejecutar los proyectos localmente
 
