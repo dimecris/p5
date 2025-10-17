@@ -12,9 +12,10 @@ Gracias a **GitHub Pages**, puedes ejecutar los sketches directamente desde el n
 
 | Proyecto | Descripción | Enlace |
 |-----------|--------------|--------|
-| **Transformaciones geométricas** | Ejemplo de traslación, rotación y escalado aleatorio al hacer clic. | [Ver demo](https://dimecris.github.io/p5js-lab/transformaciones/) |
-| **Erosión y filtrado de imagen** | Aplicación de filtros con la función `filter()` según la tecla pulsada. | [Ver demo](https://dimecris.github.io/p5js-lab/erosion/) |
-| **Reloj Gaza** | Reloj visual que combina tiempo y contexto social mediante formas gráficas. | [Ver demo](https://dimecris.github.io/p5js-lab/reloj-gaza/) |
+| **Transformaciones geométricas** (Proyecto 2) | Ejemplo de traslación, rotación y escalado aleatorio al hacer clic. | [Ver demo](proyecto2/image_IA/EX2) |
+| **Erosión y filtrado de imagen** (Proyecto 3) | Aplicación de filtros con la función `filter()` según la tecla pulsada. | [Ver demo](proyecto2/image_IA/EX3) |
+| **Transformaciones lineales** (Proyecto 4) | Detección y realce de contornos al mantener pulsadas teclas específicas (nombre y apellido). | [Ver demo](proyecto2/image_IA/EX4) |
+| **Reloj Gaza** | Reloj visual que combina tiempo y contexto social mediante formas gráficas. | [Ver demo](reloj) |
 
 ---
 
