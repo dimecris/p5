@@ -15,7 +15,7 @@ Gracias a **GitHub Pages**, puedes ejecutar los sketches directamente desde el n
 | **Transformaciones geométricas** (Proyecto 2) | Ejemplo de traslación, rotación y escalado aleatorio al hacer clic. | [Ver demo](proyecto2/image_IA/EX2) |
 | **Erosión y filtrado de imagen** (Proyecto 3) | Aplicación de filtros con la función `filter()` según la tecla pulsada. | [Ver demo](proyecto2/image_IA/EX3) |
 | **Transformaciones lineales** (Proyecto 4) | Detección y realce de contornos al mantener pulsadas teclas específicas (nombre y apellido). | [Ver demo](proyecto2/image_IA/EX4) |
-| **Reloj Gaza** | Reloj visual que combina tiempo y contexto social mediante formas gráficas. | [Ver demo](reloj) |
+| **Reloj Gaza** | Reloj visual que combina tiempo y contexto social mediante formas gráficas. | [Ver demo](reloj/reloj-main) |
 
 ---
 
