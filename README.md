@@ -18,22 +18,19 @@ Gracias a **GitHub Pages**, puedes ejecutar los sketches directamente desde el n
 | **Reloj Gaza** | Reloj visual que combina tiempo y contexto social mediante formas gráficas. | [Ver demo](reloj/reloj-main) |
 
 ---
-
 ## 📁 Estructura del repositorio
+
+```text
 p5js-lab/
-├── proyecto2/
-│ └── image_IA/
-│ ├── EX2/ → Transformaciones geométricas
-│ ├── EX3/ → Erosión y filtrado de imagen
-│ └── EX4/ → Transformaciones lineales
-│
-├── reloj-gaza/
-│ └── reloj/
-│
-└── README.md
+├─ proyecto2/
+│  └─ image_IA/
+│     ├─ EX2/ → Transformaciones geométricas
+│     ├─ EX3/ → Erosión y filtrado de imagen
+│     └─ EX4/ → Transformaciones lineales
+├─ reloj-gaza/
+│  └─ reloj/
+└─ README.md
 
-
----
 
 ## ⚙️ Cómo ejecutar los proyectos localmente
 
