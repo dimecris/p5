@@ -21,7 +21,6 @@ Gracias a **GitHub Pages**, puedes ejecutar los sketches directamente desde el n
 ## 📁 Estructura del repositorio
 
 ~~~~
-p5js-lab/
 ├─ proyecto2/
 │  └─ image_IA/
 │     ├─ EX2/ → Transformaciones geométricas
