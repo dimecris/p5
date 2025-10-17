@@ -1,0 +1,14 @@
+ body {
+
+        background-color: #f6f6f6;
+      }
+      canvas {
+        display: block;
+        margin: 20px auto;
+      }
+      h1 { 
+        margin-left:50px; 
+        display: block;
+      }
+      h2 { margin-bottom: .4em; }
+      p { margin: .2em 0; }

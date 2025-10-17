@@ -1,0 +1,22 @@
+body{
+  margin:0;
+  background:#111;
+  color:#eee;
+  font-family:system-ui,Segoe UI,Roboto,Inter,Arial}
+.wrap{
+  display:grid;
+  place-items:center;
+  min-height:100vh;
+  gap:12px;
+  padding:16px
+}
+.note{
+  opacity:.8;
+  font-size:.95rem;
+  max-width:900px;
+  text-align:center
+}
+canvas{
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+  border-radius:10px
+}
