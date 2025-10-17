@@ -1,0 +1,14 @@
+# Archivos de sistema
+.DS_Store
+.vscode/
+Thumbs.db
+
+# Archivos de backups
+*.bak
+*.tmp
+
+# Carpeta node_modules si usas npm
+node_modules/
+
+# Solo subir proyectos concretos
+# !Proyecto2-P5.js/
