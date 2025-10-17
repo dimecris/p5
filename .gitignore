@@ -1,6 +1,7 @@
+# Ignorar la carpeta de configuración de VS Code
+.vscode/
 # Archivos de sistema
 .DS_Store
-.vscode/
 Thumbs.db
 
 # Archivos de backups
