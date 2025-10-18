@@ -80,24 +80,6 @@ function keyPressed() {
 }
 
 function dibujarInstrucciones() {
-  // Fondo semitransparente para mejorar la lectura
-  // fill(255, 220);
-  // noStroke();
-  // rect(20, 20, 280, 200, 10);
-
-  // fill(0);
-  // textStyle(BOLD);
-  // text("Manual del programa:", 35, 45);
-  // textStyle(NORMAL);
-  // text("D → Erosión de la imagen", 35, 70);
-  // text("A → Posterización (nivel 4)", 35, 95);
-  // text("R → Binarización (umbral 130)", 35, 120);
-  // text("I → Negativo", 35, 145);
-  
-  // text("Otra tecla → Imagen original", 35, 170);
-
-  
-  
   push();
   noStroke();
   const pad = 14;
