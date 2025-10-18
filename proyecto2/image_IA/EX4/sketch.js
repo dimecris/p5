@@ -1,5 +1,8 @@
-// Proyecto 4a — Transformaciones geométricas con p5.js
-// Autora: Kris Darias
+/*
+Proyecto 4a — Transformaciones geométricas con p5.js
+Autora: Kris Darias
+*/ 
+
 
 let img;
 let angle = 0;

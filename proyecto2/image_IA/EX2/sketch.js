@@ -1,38 +1,48 @@
-// Proyecto 2 – Filtros con p5.js
-// Autora: Kris Darias
-// Apellido: DARIAS
+// P5.js · Proyecto 2 · Ejercicio 3 (p5.js)
+
+
 // -------------------------------------
-// Letras:
+// Kris Darias — Teclas::
 // D → Erosión
 // A → Posterización (nivel 4)
 // R → Binarización (umbral 130)
 // I → Negativo
 // -------------------------------------
 
-let imgOriginal;
+let imgOrig;
 let img;
 let escala; // Escala para que la imagen quepa en el canvas
 
 function preload() {
-  imgOriginal = loadImage("img/Kris_Darias_Rodríguez_A_hyperrealistic_cinematic_shot_of_a_woman_with_short_hair_riding_28da27a6-9061-42a2-a751-7efa2bbb441e.jpg");
+  imgOrig = loadImage("img/Kris_Darias_Rodríguez_A_hyperrealistic_cinematic_shot_of_a_woman_with_short_hair_riding_28da27a6-9061-42a2-a751-7efa2bbb441e.jpg");
 }
-
 function setup() {
-  createCanvas(windowWidth * 0.9, windowHeight * 0.8);
+  createCanvas(windowWidth * 0.9, windowHeight * 0.85);
+   // pixelDensity(1) para no escalar la densidad de píxeles a la densidad de píxeles del monitor 
+  pixelDensity(1); 
   calcularEscala();
-  img = imgOriginal.get();
-  // es aconsejable incluir la función pixelDensity(), con valor 1, 
-  // para no escalar la densidad de píxeles a la densidad de píxeles del monitor. 
+  img = imgOrig.get(); // Copia de la imagen original
   textFont('sans-serif');
   textSize(16);
 }
 
+function calcularEscala() { // Calcula la escala para que la imagen quepa en el canvas
+  const escalaAncho = (width) / imgOrig.width; // Escala para ajustar al ancho
+  const escalaAlto = (height) / imgOrig.height;  // Escala para ajustar al alto
+  escala = min(escalaAncho, escalaAlto); // Elegimos la menor para que quepa en ambas dimensiones
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth * 0.9, windowHeight * 0.85);
+  calcularEscala();
+}
+
 function draw() {
-  background(240);
+  background(240,0);
 
   // Dibuja la imagen escalada y centrada
-  const newW = imgOriginal.width * escala; // Nueva anchura
-  const newH = imgOriginal.height * escala; // Nueva altura
+  const newW = imgOrig.width * escala; // Nueva anchura
+  const newH = imgOrig.height * escala; // Nueva altura
   image(img, (width - newW) / 2, (height - newH) / 2, newW, newH); // Dibuja la imagen centrada y escalada
   // image(img, 0, 0, width, height); 
 
@@ -43,7 +53,7 @@ function draw() {
 
 function keyPressed() {
   // Siempre partimos de la imagen original
-  img = imgOriginal.get();
+  img = imgOrig.get();
 
   const letra = key.toLowerCase();
 
@@ -65,35 +75,55 @@ function keyPressed() {
   } 
   else {
     // Cualquier otra tecla vuelve a la original
-    img = imgOriginal.get();
+    img = imgOrig.get();
   }
-}
-
-function calcularEscala() { // Calcula la escala para que la imagen quepa en el canvas
-  const escalaAncho = (width) / imgOriginal.width; // Escala para ajustar al ancho
-  const escalaAlto = (height) / imgOriginal.height;  // Escala para ajustar al alto
-  escala = min(escalaAncho, escalaAlto); // Elegimos la menor para que quepa en ambas dimensiones
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth * 0.9, windowHeight * 0.8);
-  calcularEscala();
 }
 
 function dibujarInstrucciones() {
   // Fondo semitransparente para mejorar la lectura
-  fill(255, 220);
-  noStroke();
-  rect(20, 20, 280, 200, 10);
+  // fill(255, 220);
+  // noStroke();
+  // rect(20, 20, 280, 200, 10);
 
+  // fill(0);
+  // textStyle(BOLD);
+  // text("Manual del programa:", 35, 45);
+  // textStyle(NORMAL);
+  // text("D → Erosión de la imagen", 35, 70);
+  // text("A → Posterización (nivel 4)", 35, 95);
+  // text("R → Binarización (umbral 130)", 35, 120);
+  // text("I → Negativo", 35, 145);
+  
+  // text("Otra tecla → Imagen original", 35, 170);
+
+  
+  
+  push();
+  noStroke();
+  const pad = 14;
+
+  const textLines = [
+    'Manual del programa',
+    'D → Erosión de la imagen',
+    'A → Posterización (nivel 4)',
+    'R → Binarización (umbral 130)',
+    `I → Negativo`,
+    'Otra tecla → Imagen original',
+  ];
+
+  // Fondo semitransparente
+  fill(255, 220);
+  const boxW = 250, boxH = 130;
+  rect(pad, boxH - pad, boxW, boxH, 10);
+
+  // Texto
   fill(0);
-  textStyle(BOLD);
-  text("Manual del programa:", 35, 45);
-  textStyle(NORMAL);
-  text("D → Erosión de la imagen", 35, 70);
-  text("A → Posterización (nivel 4)", 35, 95);
-  text("R → Binarización (umbral 130)", 35, 120);
-  text("I → Negativo", 35, 145);
-  textStyle(ITALIC);
-  text("Otra tecla → Imagen original", 35, 170);
+  textSize(14);
+  let y = boxH + pad * 0.7;
+  for (let i = 0; i < textLines.length; i++) {
+    text(textLines[i], pad * 2.5, y);
+    y += 18;
+  }
+
+  pop();
 }

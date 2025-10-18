@@ -1,109 +1,205 @@
-/* P3.js · Proyecto 2 · Ejercicio 3 (p5.js)
-   Kris Darias — Teclas:
-   K → Detección de contornos (Sobel, lineal por convolución)
-   D → Realce de contornos (kernel de enfoque 3×3, lineal por convolución)
+/* 
+Proyecto 2 · Ejercicio 3 — Transformaciones lineales (p5.js)
+Autora: Kris Darias
+
+Teclas:
+K → Detección de contornos (filtro Sobel)
+D → Realce de contornos (enfoque con kernel 3×3)
 */
 
-let imgOrig;          // imagen original
-let imgSobel = null;  // versión con contornos (caché)
-let imgSharpen = null;// versión realzada (caché)
-const K_KEY = 75;     // 'K'
-const D_KEY = 68;     // 'D'
-let scaleFactor = 1;
+let imgOriginal;         // imagen base
+let imgContornos = null; // versión con contornos detectados
+let imgRealzado = null;  // versión con contornos realzados
+let escala;              // escala para que la imagen se ajuste al canvas
+let modoActual = 'original'; // guarda el modo activo (original, sobel o sharpen)
 
-function preload(){
-  // ⚠️ Cambia esta ruta por tu imagen.
-  imgOrig = loadImage('img/Kris_Darias_Rodríguez_A_hyperrealistic_cinematic_shot_of_a_woman_with_short_hair_riding_28da27a6-9061-42a2-a751-7efa2bbb441e.jpg');
+// Códigos de teclas que uso (para las funciones keyIsDown)
+const TECLA_K = 75; // letra K
+const TECLA_D = 68; // letra D
+
+function preload() {
+  // Cargo la imagen desde la carpeta del proyecto
+  imgOriginal = loadImage('img/Kris_Darias_Rodríguez_A_hyperrealistic_cinematic_shot_of_a_woman_with_short_hair_riding_28da27a6-9061-42a2-a751-7efa2bbb441e.jpg');
 }
 
-function setup(){
-  const c = createCanvas(imgOrig.width, imgOrig.height);
-  c.parent('p5-container');
-  noLoop(); // Redibujamos bajo demanda para ahorrar CPU
-  drawFrame('original');
+function setup() {
+  // Creo el lienzo y ajusto la densidad de píxel para evitar escalados extraños
+  let c = createCanvas(windowWidth * 0.9, windowHeight * 0.85);
+  pixelDensity(1);
+
+  // Parche para que Chrome no muestre la advertencia de getImageData
+  c.elt.getContext('2d', { willReadFrequently: true });
+
+  calcularEscala();
 }
-function createResponsiveCanvas() {
-  // Queremos que la imagen quepa completamente en pantalla
-  // dejando algo de margen (10% del ancho, 15% del alto)
-  const maxW = windowWidth * 0.9;
-  const maxH = windowHeight * 0.85;
 
-  // Calculamos el factor de escala manteniendo proporción
-  scaleFactor = Math.min(maxW / imgOrig.width, maxH / imgOrig.height);
-
-  const newW = imgOrig.width * scaleFactor;
-  const newH = imgOrig.height * scaleFactor;
-
-  const c = createCanvas(newW, newH);
-  c.parent('p5-container');
+function calcularEscala() {
+  // Calculo la escala para que la imagen quepa completa en pantalla
+  const escalaAncho = width / imgOriginal.width;
+  const escalaAlto = height / imgOriginal.height;
+  escala = min(escalaAncho, escalaAlto);
 }
 
 function windowResized() {
-  // Cuando cambia el tamaño de la ventana, reajustamos el canvas
-  resizeCanvas(0, 0);
-  createResponsiveCanvas();
-  drawFrame('original');
+  // Si cambia el tamaño de la ventana, reajusto el lienzo y la escala
+  resizeCanvas(windowWidth * 0.9, windowHeight * 0.85);
+  calcularEscala();
 }
-function drawFrame(mode) {
-  clear();
-  push();
-  scale(scaleFactor);
-  if (mode === 'sobel' && imgSobel) {
-    image(imgSobel, 0, 0);
-  } else if (mode === 'sharpen' && imgSharpen) {
-    image(imgSharpen, 0, 0);
+
+function draw() {
+  // Limpio el fondo y preparo el área de dibujo
+  background(240, 0);
+
+  // Calculo las medidas escaladas y centro la imagen
+  const newW = imgOriginal.width * escala;
+  const newH = imgOriginal.height * escala;
+  const x = (width - newW) / 2;
+  const y = (height - newH) / 2;
+
+  // Según el modo actual, muestro la imagen correspondiente
+  if (modoActual === 'sobel' && imgContornos) {
+    image(imgContornos, x, y, newW, newH);
+  } else if (modoActual === 'sharpen' && imgRealzado) {
+    image(imgRealzado, x, y, newW, newH);
   } else {
-    image(imgOrig, 0, 0);
+    image(imgOriginal, x, y, newW, newH);
   }
-  pop();
-  drawManualOverlay(mode);
+
+  // Dibujo el cuadro de instrucciones en pantalla
+  dibujarInstrucciones(modoActual);
 }
 
-function draw(){ /* sin uso: controlamos el repintado manualmente */ }
+function keyPressed() {
+  // Compruebo qué tecla se ha pulsado
+  const letra = (key + '').toLowerCase();
 
-// Detecta qué tecla está pulsada y dibuja en consecuencia
-function keyPressed(){
-  // Redibuja según estado actual de la tecla
-  if (keyIsDown(K_KEY)) {
-    ensureSobel();
-    drawFrame('sobel');
-  } else if (keyIsDown(D_KEY)) {
-    ensureSharpen();
-    drawFrame('sharpen');
-  }
-}
-
-function keyReleased(){
-  // Al soltar cualquier tecla, volvemos al original
-  if (!keyIsDown(K_KEY) && !keyIsDown(D_KEY)) {
-    drawFrame('original');
+  if (letra === 'k') {
+    calcularContornos();
+    modoActual = 'sobel';
+  } else if (letra === 'd') {
+    aplicarRealce();
+    modoActual = 'sharpen';
   }
 }
 
-// También por si la tecla ya estaba pulsada al enfocar la ventana
-function mouseMoved(){
-  if (keyIsDown(K_KEY)) { ensureSobel(); drawFrame('sobel'); return; }
-  if (keyIsDown(D_KEY)) { ensureSharpen(); drawFrame('sharpen'); return; }
-}
-
-// ----- Render según modo -----
-function drawFrame(mode){
-  clear();
-  if (mode === 'sobel' && imgSobel) {
-    image(imgSobel, 0, 0);
-  } else if (mode === 'sharpen' && imgSharpen) {
-    image(imgSharpen, 0, 0);
-  } else {
-    image(imgOrig, 0, 0);
+function keyReleased() {
+  // Cuando no hay ninguna tecla activa, vuelvo al modo original
+  if (!keyIsDown(TECLA_K) && !keyIsDown(TECLA_D)) {
+    modoActual = 'original';
   }
-  drawManualOverlay(mode);
 }
 
-// Manual sobreimpreso
-function drawManualOverlay(mode){
+function calcularContornos() {
+  // Genero la versión con contornos solo una vez (la guardo en caché)
+  if (!imgContornos) imgContornos = detectarContornos(imgOriginal);
+}
+
+function aplicarRealce() {
+  // Aplico el filtro de enfoque (también guardado en caché)
+  if (!imgRealzado) {
+    const kernel = [
+      [0, -1, 0],
+      [-1, 5, -1],
+      [0, -1, 0]
+    ];
+    imgRealzado = convolucionMatriz(imgOriginal, kernel, 3, 1, 0);
+  }
+}
+
+// --- Convolución genérica 3×3 ---
+function convolucionMatriz(srcImg, matrix, matrixSize = 3, divisor = 1, offset = 0) {
+  const w = srcImg.width, h = srcImg.height;
+  const out = createImage(w, h);
+  srcImg.loadPixels();
+  out.loadPixels();
+
+  const clamp = v => constrain(v, 0, 255);
+  const half = Math.floor(matrixSize / 2);
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let r = 0, g = 0, b = 0;
+
+      // Recorro todos los píxeles vecinos según el tamaño del kernel
+      for (let j = 0; j < matrixSize; j++) {
+        for (let i = 0; i < matrixSize; i++) {
+          const k = matrix[j][i];
+          const px = constrain(x + i - half, 0, w - 1);
+          const py = constrain(y + j - half, 0, h - 1);
+          const idx = 4 * (py * w + px);
+
+          r += srcImg.pixels[idx] * k;
+          g += srcImg.pixels[idx + 1] * k;
+          b += srcImg.pixels[idx + 2] * k;
+        }
+      }
+
+      const outIdx = 4 * (y * w + x);
+      out.pixels[outIdx] = clamp(r / divisor + offset);
+      out.pixels[outIdx + 1] = clamp(g / divisor + offset);
+      out.pixels[outIdx + 2] = clamp(b / divisor + offset);
+      out.pixels[outIdx + 3] = 255;
+    }
+  }
+
+  out.updatePixels();
+  return out;
+}
+
+// --- Filtro Sobel para detectar contornos ---
+function detectarContornos(srcImg) {
+  const w = srcImg.width, h = srcImg.height;
+
+  // Paso la imagen a escala de grises para simplificar el cálculo
+  const gray = createImage(w, h);
+  srcImg.loadPixels();
+  gray.loadPixels();
+  for (let i = 0; i < srcImg.pixels.length; i += 4) {
+    const y = 0.2126 * srcImg.pixels[i] + 0.7152 * srcImg.pixels[i + 1] + 0.0722 * srcImg.pixels[i + 2];
+    gray.pixels[i] = gray.pixels[i + 1] = gray.pixels[i + 2] = y;
+    gray.pixels[i + 3] = 255;
+  }
+  gray.updatePixels();
+
+  // Máscaras de Sobel (Gx y Gy)
+  const Kx = [
+    [-1, 0, 1],
+    [-2, 0, 2],
+    [-1, 0, 1]
+  ];
+  const Ky = [
+    [-1, -2, -1],
+    [0, 0, 0],
+    [1, 2, 1]
+  ];
+
+  const gx = convolucionMatriz(gray, Kx, 3);
+  const gy = convolucionMatriz(gray, Ky, 3);
+
+  // Combino ambos gradientes para obtener la magnitud de los contornos
+  gx.loadPixels();
+  gy.loadPixels();
+  const out = createImage(w, h);
+  out.loadPixels();
+
+  for (let i = 0; i < gx.pixels.length; i += 4) {
+    const ax = Math.abs(gx.pixels[i]);
+    const ay = Math.abs(gy.pixels[i]);
+    const m = constrain(ax + ay, 0, 255);
+    out.pixels[i] = out.pixels[i + 1] = out.pixels[i + 2] = m;
+    out.pixels[i + 3] = 255;
+  }
+
+  out.updatePixels();
+  return out;
+}
+
+// --- Cuadro con las instrucciones ---
+function dibujarInstrucciones(mode) {
   push();
   noStroke();
   const pad = 14;
+
   const textLines = [
     'Manual del programa',
     'K → Detectar contornos (Sobel)',
@@ -111,109 +207,20 @@ function drawManualOverlay(mode){
     'Suelta la tecla para volver al original.',
     `Vista: ${mode}`
   ];
-  // Caja semitransparente
-  const boxW = 360, boxH = 120;
+
+  // Fondo semitransparente
   fill(0, 0, 0, 130);
+  const boxW = 280, boxH = 110;
   rect(pad, height - boxH - pad, boxW, boxH, 10);
+
   // Texto
   fill(255);
   textSize(14);
-  let y = height - boxH + pad*0.7;
-  for (let i=0;i<textLines.length;i++){
-    text(textLines[i], pad*1.5, y);
+  let y = height - boxH + pad * 0.7;
+  for (let i = 0; i < textLines.length; i++) {
+    text(textLines[i], pad * 2.5, y);
     y += 18;
   }
+
   pop();
-}
-
-// ----- Preparadores (con caché) -----
-function ensureSobel(){
-  if (!imgSobel) imgSobel = sobelEdges(imgOrig);
-}
-function ensureSharpen(){
-  if (!imgSharpen) {
-    // Kernel de enfoque clásico:
-    //  [ 0, -1,  0,
-    //   -1,  5, -1,
-    //    0, -1,  0 ]
-    const kernel = [0,-1,0,-1,5,-1,0,-1,0];
-    imgSharpen = convolve3x3(imgOrig, kernel, 1, 0);
-  }
-}
-
-// ----- Convolución 3×3 genérica (lineal) -----
-function convolve3x3(srcImg, kernel, divisor=1, offset=0){
-  const w = srcImg.width, h = srcImg.height;
-  const out = createImage(w, h);
-  srcImg.loadPixels();
-  out.loadPixels();
-
-  const k = kernel;
-  const clamp = v => v < 0 ? 0 : (v > 255 ? 255 : v);
-
-  // Recorremos evitando bordes (modo 'extensión' simple replicando bordes)
-  for (let y = 0; y < h; y++){
-    for (let x = 0; x < w; x++){
-      let r=0,g=0,b=0;
-      for (let ky = -1; ky <= 1; ky++){
-        for (let kx = -1; kx <= 1; kx++){
-          const px = constrain(x + kx, 0, w-1);
-          const py = constrain(y + ky, 0, h-1);
-          const idx = 4*(py*w + px);
-          const kval = k[(ky+1)*3 + (kx+1)];
-          r += srcImg.pixels[idx  ] * kval;
-          g += srcImg.pixels[idx+1] * kval;
-          b += srcImg.pixels[idx+2] * kval;
-        }
-      }
-      r = clamp(r/divisor + offset);
-      g = clamp(g/divisor + offset);
-      b = clamp(b/divisor + offset);
-      const outIdx = 4*(y*w + x);
-      out.pixels[outIdx  ] = r;
-      out.pixels[outIdx+1] = g;
-      out.pixels[outIdx+2] = b;
-      out.pixels[outIdx+3] = 255;
-    }
-  }
-  out.updatePixels();
-  return out;
-}
-
-// ----- Detección de contornos (Sobel, lineal por convoluciones separadas) -----
-function sobelEdges(srcImg){
-  const w = srcImg.width, h = srcImg.height;
-
-  // 1) Pasar a luminancia (Y) para operar en 1 canal (lineal)
-  const gray = createImage(w, h);
-  srcImg.loadPixels(); gray.loadPixels();
-  for (let i=0; i < srcImg.pixels.length; i+=4){
-    // luminancia perceptual
-    const y = 0.2126*srcImg.pixels[i] + 0.7152*srcImg.pixels[i+1] + 0.0722*srcImg.pixels[i+2];
-    gray.pixels[i] = gray.pixels[i+1] = gray.pixels[i+2] = y;
-    gray.pixels[i+3] = 255;
-  }
-  gray.updatePixels();
-
-  // Kernels Sobel Gx, Gy (lineales)
-  const Kx = [-1,0,1,-2,0,2,-1,0,1];
-  const Ky = [-1,-2,-1,0,0,0,1,2,1];
-
-  const gx = convolve3x3(gray, Kx);
-  const gy = convolve3x3(gray, Ky);
-
-  // Magnitud aproximada (|gx| + |gy|), linealmente combinada y acotada
-  gx.loadPixels(); gy.loadPixels();
-  const out = createImage(w, h);
-  out.loadPixels();
-  for (let i=0;i<gx.pixels.length;i+=4){
-    const ax = Math.abs(gx.pixels[i]);   // mismo en R,G,B
-    const ay = Math.abs(gy.pixels[i]);
-    let m = ax + ay; // aproximación rápida de magnitud
-    if (m > 255) m = 255;
-    out.pixels[i] = out.pixels[i+1] = out.pixels[i+2] = m;
-    out.pixels[i+3] = 255;
-  }
-  out.updatePixels();
-  return out;
 }
