@@ -35,7 +35,7 @@ Gracias a **GitHub Pages**, puedes ejecutar los sketches directamente desde el n
 
 1. Clona este repositorio:
    ```bash
-   git clone https://github.com/dimecris/p5js-lab.git
+   git clone https://github.com/dimecris/p5.git
 
 
 Abre cualquier carpeta (por ejemplo proyecto2/image_IA/EX4) en tu editor o navegador.
