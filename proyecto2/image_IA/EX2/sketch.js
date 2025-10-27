@@ -1,4 +1,4 @@
-// P5.js · Proyecto 2 · Ejercicio 3
+// P5.js · Proyecto 2 · Ejercicio 2
 // -------------------------------------
 // Kris Darias — Teclas:
 // D → Erosión

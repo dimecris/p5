@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: https://cdn.jsdelivr.net;">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HealthySmile — Halloween Brush</title>
+
+  <!-- Google Font (Halloween-ish) -->
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Rubik:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- p5.js -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/addons/p5.sound.min.js"></script>
+
+  <!-- MediaPipe Face Mesh (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+  <!-- Our sketch -->
+  <script src="sketch.js" defer></script>
+</head>
+<body>
+  <div id="ui">
+    <img id="logo" src="assets/logo.png" alt="HealthySmile Logo">
+    <h1 id="title">HealthySmile — Halloween Brush</h1>
+    <p id="description">Muestra tu sonrisa: abre la boca para empezar el cepillado digital. ¡Temática Halloween!</p>
+
+    <div id="controls">
+      <button id="startButton">Start Experience</button>
+      <label>Umbral apertura boca: <input id="thresholdSlider" type="range" min="0.01" max="0.08" step="0.005" value="0.03"></label>
+      <label>Tamaño partículas: <input id="sizeSlider" type="range" min="2" max="20" step="1" value="8"></label>
+      <div id="status">Status: idle</div>
+    </div>
+
+    <div id="credit">© HealthySmile — Halloween Special</div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading models...</div>
+  </div>
+
+  <!-- Canvas will be injected by p5 -->
+  <!-- Audio -->
+  <audio id="spookySound" src="assets/spooky.mp3" preload="auto"></audio>
+</body>
+</html>

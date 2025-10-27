@@ -1,0 +1,122 @@
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at top, #15031a 0%, #05010a 100%);
+  color: #fff;
+  font-family: 'Rubik', sans-serif;
+  overflow: hidden;
+}
+
+#ui {
+  position: absolute;
+  z-index: 10;
+  left: 16px;
+  top: 12px;
+  max-width: 360px;
+  padding: 12px;
+  background: rgba(0,0,0,0.35);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+}
+
+#logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 6px;
+}
+
+#title {
+  font-family: 'Creepster', cursive;
+  font-size: 20px;
+  margin: 4px 0;
+  color: #ffb84d;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+
+#description {
+  margin: 6px 0 10px 0;
+  font-size: 13px;
+  color: #dcdcdc;
+}
+
+#controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#controls button {
+  background: linear-gradient(90deg,#ff6d00,#ff3b3b);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255,80,20,0.25);
+  transition: transform .12s ease;
+}
+
+#controls button:active { transform: translateY(2px); }
+
+#controls label {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f2e6d6;
+}
+
+#status {
+  font-size: 12px;
+  color: #f6d365;
+}
+
+#credit {
+  font-size: 11px;
+  color: #9e9e9e;
+  margin-top: 8px;
+}
+
+/* Loading overlay */
+#loading {
+  position: absolute;
+  z-index: 999;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.75));
+}
+
+.spinner {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 8px solid rgba(255,255,255,0.12);
+  border-top-color: #ff9100;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 6px 18px rgba(255,145,0,0.14);
+}
+
+.loading-text {
+  color: #ffdca6;
+  margin-top: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: 'Rubik', sans-serif;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Make canvas full-screen behind UI */
+canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
