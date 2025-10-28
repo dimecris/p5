@@ -17,16 +17,12 @@ let isModelReady = false; // El modelo de FaceMesh está listo para usarse
 let hasStarted = false;   // La experiencia ha comenzado (usuario pulsó Start)
 
 // Elementos de interfaz (DOM)
-let startButton, sizeSlider, statusDiv;
-// Umbral fijo para considerar la boca abierta (relación con distancia entre ojos)
-const MOUTH_OPEN_THRESHOLD = 0.03;
+let startButton, thresholdSlider, sizeSlider, statusDiv;
+let threshold = 0.03; // Umbral de apertura de boca (relación con distancia entre ojos)
 let particleSize = 8; // Tamaño base de partículas (ajustable con slider)
 
 let particles = [];     // Lista de partículas activas
 let maxParticles = 800; // Límite máximo de partículas simultáneas
-
-// Cámara de MediaPipe (para poder iniciar/parar)
-let mpCamera = null;
 
 // Sonido y otros assets
 let spookySound;
@@ -105,14 +101,11 @@ function preload() {
 // --- p5 setup ---
 function setup() {
   // Canvas a tamaño completo de ventana
-  createCanvas(canvasW, canvasH);
+  createCanvas(windowWidth, windowHeight);
   pixelDensity(1);
   
-  // Referenciar elementos de UI que ya existen en el HTML
-  startButton = select('#startButton');
-  sizeSlider = select('#sizeSlider');
-  statusDiv = select('#status');
-  loadingOverlay = select('#loading');
+  // Crear elementos de UI dinámicamente
+  createUI();
   
   // createCapture devuelve un elemento <video> que alimentaremos a MediaPipe
   video = createCapture(VIDEO, function() {
@@ -124,7 +117,8 @@ function setup() {
   video.hide(); // dibujamos nosotros el vídeo en el canvas
 
   // Configurar eventos de UI
-  startButton.mousePressed(toggleExperience);
+  startButton.mousePressed(startExperience);
+  thresholdSlider.input(() => threshold = Number(thresholdSlider.value()));
   sizeSlider.input(() => particleSize = Number(sizeSlider.value()));
 
   // HUD text settings once (avoid per-frame changes)
@@ -148,13 +142,71 @@ function setup() {
   initFaceMesh();
 }
 
-// Alterna entre iniciar y parar la experiencia
-function toggleExperience() {
-  if (hasStarted) {
-    stopExperience();
-  } else {
-    startExperience();
-  }
+// Crear interfaz de usuario completa con p5.dom
+function createUI() {
+  // Las @font-face ya están declaradas en index.html, solo las usamos aquí
+  
+  // Contenedor principal de UI
+  const ui = createDiv('');
+  ui.id('ui');
+  
+  // Título con Griffy
+  const title = createElement('h1', 'HealthySmile — Halloween Brush');
+  title.id('title');
+  title.parent(ui);
+  title.style('font-family', 'Griffy-p5, cursive');
+  
+  // Descripción
+  const desc = createP('Muestra tu sonrisa: abre la boca para empezar el cepillado digital.');
+  desc.id('description');
+  desc.parent(ui);
+  desc.style('font-family', 'Rubik-p5, sans-serif');
+  
+  // Contenedor de controles
+  const controls = createDiv('');
+  controls.id('controls');
+  controls.parent(ui);
+  
+  // Botón Start
+  startButton = createButton('Comenzar');
+  startButton.id('startButton');
+  startButton.parent(controls);
+  
+  // Slider umbral
+  const labelThreshold = createDiv('Umbral apertura boca: ');
+  labelThreshold.parent(controls);
+  thresholdSlider = createSlider(0.01, 0.08, 0.03, 0.005);
+  thresholdSlider.id('thresholdSlider');
+  thresholdSlider.parent(labelThreshold);
+  
+  // Slider tamaño
+  const labelSize = createDiv('Tamaño partículas: ');
+  labelSize.parent(controls);
+  sizeSlider = createSlider(2, 20, 8, 1);
+  sizeSlider.id('sizeSlider');
+  sizeSlider.parent(labelSize);
+  
+  // Status
+  statusDiv = createDiv('Status: idle');
+  statusDiv.id('status');
+  statusDiv.parent(controls);
+  
+  // Crédito
+  const credit = createDiv('© HealthySmile — Halloween Special');
+  credit.id('credit');
+  credit.parent(ui);
+  
+  // Loading overlay
+  loadingOverlay = createDiv('');
+  loadingOverlay.id('loading');
+  
+  const spinner = createDiv('');
+  spinner.class('spinner');
+  spinner.parent(loadingOverlay);
+  
+  const loadingText = createDiv('Loading models...');
+  loadingText.class('loading-text');
+  loadingText.parent(loadingOverlay);
 }
 
 /* Calcular el rectángulo donde dibujar el vídeo sin deformarlo.
@@ -221,52 +273,20 @@ function startExperience() {
   loadingOverlay.style('display', 'flex');
 
   // Usamos Camera helper de MediaPipe para enviar frames del <video> a FaceMesh
-  // La cámara se crea y arranca solo una vez; el botón solo habilita/deshabilita la detección
-  if (!mpCamera) {
-    mpCamera = new Camera(video.elt, {
-      onFrame: async () => {
-        if (hasStarted) {
-          await faceMesh.send({ image: video.elt });
-        }
-      },
-      width: canvasW,
-      height: canvasH
-    });
-    mpCamera.start();
-  }
+  const mpCamera = new Camera(video.elt, {
+    onFrame: async () => {
+      await faceMesh.send({ image: video.elt });
+    },
+    width: canvasW,
+    height: canvasH
+  });
+  mpCamera.start();
 
   // Ocultamos el overlay tras un pequeño delay (primeros frames)
   setTimeout(() => {
     loadingOverlay.style('display', 'none');
     statusDiv.html('Status: running — open your mouth!');
   }, 1200);
-
-  // Cambiar texto del botón a Parar
-  if (startButton) startButton.html('Parar');
-}
-
-// Parar experiencia: detener detección, audio y limpiar estado visual
-function stopExperience() {
-  if (!hasStarted) return;
-  hasStarted = false;
-
-  // No detenemos la cámara: solo deshabilitamos la detección y limpiamos estado
-
-  // Reset de estado de detección y partículas
-  landmarks = null;
-  mouthOpen = false;
-  brushIntensity = 0;
-  particles.length = 0;
-
-  // Pausar sonido si estuviera sonando
-  try {
-    if (spookySound && spookySound.isPlaying()) spookySound.pause();
-  } catch (_) {}
-
-  // Asegurar overlay oculto y estado
-  if (loadingOverlay) loadingOverlay.style('display', 'none');
-  if (statusDiv) statusDiv.html('Status: stopped — press Start');
-  if (startButton) startButton.html('Comenzar');
 }
 
 // Callback MediaPipe results
@@ -324,7 +344,7 @@ function draw() {
     let mouthRatio = mouthDist / max(faceScale, 1);
 
     // Boca abierta si supera el umbral configurado
-  if (mouthRatio > MOUTH_OPEN_THRESHOLD) {
+    if (mouthRatio > threshold) {
       if (!mouthOpen) {
         mouthOpen = true;
         mouthOpenStart = millis();
@@ -412,4 +432,3 @@ function windowResized() {
   // Redimensionar el canvas para ocupar toda la ventana
   resizeCanvas(windowWidth, windowHeight);
 }
-

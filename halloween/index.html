@@ -2,18 +2,30 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: https://cdn.jsdelivr.net;">
+  <!-- Content Security Policy: Define qué recursos puede cargar la página
+       - default-src 'self': Por defecto solo recursos del mismo origen
+       - script-src: Scripts permitidos (locales, inline, eval para WASM, CDN de MediaPipe)
+       - style-src: Estilos permitidos (locales e inline)
+       - img-src: Imágenes (locales, data URIs, CDN)
+       - connect-src: Conexiones (para cargar modelos de MediaPipe)
+       - 'unsafe-eval' y 'wasm-unsafe-eval': Necesarios para WebAssembly de MediaPipe
+       - blob:: Necesario para workers de MediaPipe
+  -->
+  <!-- configuracion para kiosko
+  <meta
+      http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"> -->
+  <meta 
+      http-equiv="Content-Security-Policy" 
+      content="default-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com;">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HealthySmile — Halloween Brush</title>
-
-  <!-- Google Font (Halloween-ish) -->
-  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Rubik:wght@300;400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 
   <!-- p5.js -->
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/addons/p5.sound.min.js"></script>
+  <script src="libraries/p5.min.js"></script>
+  <script src="libraries/p5.sound.min.js"></script>
 
   <!-- MediaPipe Face Mesh (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
@@ -24,13 +36,12 @@
 </head>
 <body>
   <div id="ui">
-    <img id="logo" src="assets/logo.png" alt="HealthySmile Logo">
+    <!-- <img id="logo" src="assets/logo.png" alt="HealthySmile Logo"> -->
     <h1 id="title">HealthySmile — Halloween Brush</h1>
-    <p id="description">Muestra tu sonrisa: abre la boca para empezar el cepillado digital. ¡Temática Halloween!</p>
+    <p id="description">Abre la boca para empezar el cepillado</p>
 
     <div id="controls">
-      <button id="startButton">Start Experience</button>
-      <label>Umbral apertura boca: <input id="thresholdSlider" type="range" min="0.01" max="0.08" step="0.005" value="0.03"></label>
+      <button id="startButton">Comenzar</button>
       <label>Tamaño partículas: <input id="sizeSlider" type="range" min="2" max="20" step="1" value="8"></label>
       <div id="status">Status: idle</div>
     </div>
@@ -46,6 +57,6 @@
 
   <!-- Canvas will be injected by p5 -->
   <!-- Audio -->
-  <audio id="spookySound" src="assets/spooky.mp3" preload="auto"></audio>
+  <audio id="spookySound" src="assets/music/halloween-bells-and-strings-loop_dm_124bpm_master-410508.mp3" preload="auto"></audio>
 </body>
 </html>

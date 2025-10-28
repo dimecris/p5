@@ -1,37 +1,37 @@
 // main.js (Electron main process)
 // Creates a fullscreen kiosk window optimized for 1080p
 
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
+const { app, BrowserWindow } = require('electron')
+const path = require('path')
 
-function createWindow () {
-  const mainWindow = new BrowserWindow({
+const createWindow = () => {
+  const win = new BrowserWindow({
     width: 1280,
     height: 720,
-    fullscreen: true,
-    kiosk: true,
+    fullscreen: true,  // Pantalla completa
+    kiosk: true,       // Modo kiosko (bloquea salida)
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false
     }
-  });
+  })
 
-  const indexPath = `file://${path.join(__dirname, 'index.html')}`;
-  mainWindow.loadURL(indexPath);
+  
 
-  // If you want to debug inside the packaged window, uncomment:
-  // mainWindow.webContents.openDevTools({ mode: 'detach' });
+  win.loadFile('index.html')
+  
+  // Descomentar para debug:
+  win.webContents.openDevTools({ mode: 'detach' })
 }
 
 app.whenReady().then(() => {
-  createWindow();
-
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-});
-
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit();
-});
+  createWindow()
+  
+  // macOS: recrear ventana si se cierra
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})

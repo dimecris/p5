@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthySmile - ¡Terror Bucal!</title>
+    <!-- Incluye las librerías necesarias -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.js"></script>
+    <!-- Tone.js para efectos de sonido (Multimedia) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Google Fonts para la temática de Halloween -->
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS personalizado (Requisito de estilos) -->
+    <style>
+        :root {
+            --halloween-purple: #4b0082; /* Índigo oscuro */
+            --halloween-orange: #ff4500; /* Rojo naranja brillante */
+            --text-color: #e0e0e0;
+            --background-color: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Estilo de la cabecera (Temática Halloween) */
+        h1 {
+            font-family: 'Creepster', cursive;
+            font-size: 3.5rem;
+            color: var(--halloween-orange);
+            text-shadow: 4px 4px 0px var(--halloween-purple), 
+                         6px 6px 0px black;
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        p {
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            color: #ccc;
+        }
+
+        /* Estilo del Botón de Inicio (Requisito DOM) */
+        #startButton {
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--background-color);
+            background-color: var(--halloween-orange);
+            border: 4px solid var(--halloween-purple);
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 var(--halloween-purple);
+            transition: all 0.1s ease;
+            font-family: 'Creepster', cursive;
+            letter-spacing: 2px;
+        }
+
+        #startButton:hover {
+            background-color: #ff6600;
+        }
+
+        #startButton:active {
+            box-shadow: 0 2px 0 var(--halloween-purple);
+            transform: translateY(3px);
+        }
+
+        #canvas-container {
+            border: 5px solid var(--halloween-purple);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 69, 0, 0.5);
+            margin-top: 30px;
+        }
+
+        /* Estilos para ocultar/mostrar elementos */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>HealthySmile - ¡Terror Bucal!</h1>
+        <h2>La App de Cepillado Digital de Halloween</h2>
+    </header>
+
+    <main id="app-content">
+        <p>
+            ¡Bienvenido a la experiencia "Terror Bucal"! Para empezar a cepillar digitalmente a tus demonios, 
+            necesitamos activar la cámara. Pulsa el botón, abre tu boca (¡como un vampiro!) y mira cómo el cepillado 
+            de limo mágico (partículas) hace su trabajo. Mantén la boca abierta para prolongar el efecto.
+        </p>
+        <button id="startButton">INICIAR HECHIZO BUCAL</button>
+        <div id="canvas-container" class="hidden"></div>
+    </main>
+
+    <script type="module">
+        // FIX 1: Importar las clases de MediaPipe. Esto requiere type="module" y elimina la necesidad de cargar vision_bundle.js por separado, 
+        // y resuelve el ReferenceError y el SyntaxError: Unexpected token 'export'.
+        import { FilesetResolver, FaceLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+        
+        // --- CONSTANTES DE COLOR (FIX: Resuelve los errores de SyntaxError con 'var') ---
+        const HALLOWEEN_PURPLE = '#4b0082';
+        const HALLOWEEN_ORANGE = '#ff4500';
+        const TEXT_COLOR = '#e0e0e0';
+        const BACKGROUND_COLOR = '#1a1a1a';
+        
+        // Variables globales para P5.js y MediaPipe
+        let video; // Flujo de la cámara
+        let landmarker; // Objeto Face Landmarker
+        let lastResults = null; // Últimos resultados de la detección
+        let isLandmarkerReady = false; // Bandera para saber si el modelo cargó
+        let isStarted = false; // Bandera para saber si el usuario hizo clic en "Iniciar"
+        let particles = []; // Array para el sistema de partículas
+        let mouthOpenTime = 0; // Tiempo en frames que la boca ha estado abierta
+        
+        // Variables de Audio (Multimedia)
+        let synth; // Sintetizador para el sonido de burbujeo
+
+        // IDs de Landmarks para la apertura de la boca (puntos del labio interior superior e inferior)
+        // Usamos los índices del modelo Face Landmarker (468 puntos)
+        const UPPER_LIP_INNER = 13;
+        const LOWER_LIP_INNER = 14;
+        const MOUTH_OPEN_THRESHOLD = 20; // Umbral de distancia en píxeles para considerar "abierta"
+
+        // --- Configuración de MediaPipe Face Landmarker ---
+
+        const initializeLandmarker = async () => {
+            // FIX: FilesetResolver ahora está en el ámbito gracias al import de ES Module
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+            );
+            
+            // Configuración del modelo Face Landmarker
+            landmarker = await FaceLandmarker.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker_v2/float16/face_landmarker_v2.task`,
+                    delegate: "GPU" // Optimización: Usar la GPU si está disponible
+                },
+                outputFaceBlendshapes: true,
+                runningMode: "VIDEO",
+                numFaces: 1
+            });
+
+            isLandmarkerReady = true;
+            console.log("MediaPipe Face Landmarker listo.");
+        };
+
+        // --- Sistema de Partículas (Temática Halloween: Slime Bubbles) ---
+        class Particle {
+            constructor(x, y, color) {
+                this.position = createVector(x, y);
+                this.velocity = p5.Vector.random2D().mult(random(1, 3));
+                this.lifespan = 255;
+                this.color = color;
+                this.size = random(5, 15);
+                this.initialSize = this.size;
+            }
+
+            // Mueve la partícula
+            update(mouthStatus) {
+                // Fricción suave
+                this.velocity.mult(0.95); 
+                this.position.add(this.velocity);
+                
+                // Reduce la opacidad para simular que se desvanece
+                this.lifespan -= 5; 
+                
+                // Efecto de crecimiento/cambio basado en la apertura de la boca
+                if (mouthStatus) {
+                     this.size = min(this.initialSize * 2, this.size + 0.5);
+                } else {
+                     this.size = max(5, this.size - 0.2);
+                }
+            }
+
+            // Dibuja la partícula
+            display() {
+                noStroke();
+                // Usamos el color de Halloween, con opacidad controlada por lifespan
+                fill(hue(this.color), saturation(this.color), brightness(this.color), this.lifespan);
+                ellipse(this.position.x, this.position.y, this.size);
+            }
+
+            isFinished() {
+                return this.lifespan < 0;
+            }
+        }
+        
+        // --- Lógica P5.js ---
+
+        function setup() {
+            // Dimensiones optimizadas para 1080p, manteniendo un aspecto 16:9
+            const canvasWidth = 800;
+            const canvasHeight = 600; 
+
+            const canvas = createCanvas(canvasWidth, canvasHeight);
+            canvas.parent('canvas-container');
+            
+            // Establecer modo de color para usar HSB para las partículas
+            colorMode(HSB, 360, 100, 100, 255);
+
+            // Inicializar el sintetizador Tone.js (Multimedia)
+            synth = new Tone.MembraneSynth().toDestination();
+            
+            // La cámara se iniciará después del click del botón
+        }
+
+        function draw() {
+            if (!isStarted) {
+                // Estado 1: Pantalla de inicio (solo estática)
+                background(BACKGROUND_COLOR); // FIX
+                return;
+            }
+            
+            // Estado 2: Aplicación en ejecución
+            
+            // Dibuja el video volteado (como un espejo)
+            push();
+            translate(width, 0);
+            scale(-1, 1);
+            image(video, 0, 0, width, height);
+            pop();
+
+            // Lógica de detección y animación
+            if (isLandmarkerReady && video && video.loadedmetadata) {
+                // Animación Loading (al principio, mientras carga el modelo)
+                document.getElementById('startButton').classList.add('hidden');
+                
+                // Llama al detector de landmarks
+                const timestamp = performance.now();
+                lastResults = landmarker.detectForVideo(video.elt, timestamp);
+                
+                // Verifica la apertura de la boca
+                let mouthIsOpen = false;
+                if (lastResults && lastResults.faceLandmarks && lastResults.faceLandmarks.length > 0) {
+                    const landmarks = lastResults.faceLandmarks[0];
+                    
+                    // Obtener las coordenadas normalizadas de los landmarks de la boca interior
+                    const p13 = landmarks[UPPER_LIP_INNER]; // Labio superior interior
+                    const p14 = landmarks[LOWER_LIP_INNER]; // Labio inferior interior
+                    
+                    // Mapear coordenadas normalizadas (0 a 1) a coordenadas de píxeles (0 a width/height)
+                    const x1 = p13.x * width;
+                    const y1 = p13.y * height;
+                    const x2 = p14.x * width;
+                    const y2 = p14.y * height;
+                    
+                    // Calcular la distancia vertical (apertura) en píxeles
+                    const distance = dist(x1, y1, x2, y2);
+                    
+                    if (distance > MOUTH_OPEN_THRESHOLD) {
+                        mouthIsOpen = true;
+                        
+                        // Generar partículas en la posición del centro de la boca
+                        const mouthCenter = createVector((x1 + x2) / 2, (y1 + y2) / 2);
+                        
+                        // Genera más partículas cuanto más abierta esté la boca
+                        for (let i = 0; i < floor(map(distance, MOUTH_OPEN_THRESHOLD, 100, 1, 5, true)); i++) {
+                            // Color HSB: Verde Tóxico (100) o Púrpura (300)
+                            const particleColor = random() > 0.5 ? color(100, 80, 80) : color(300, 80, 80);
+                            particles.push(new Particle(mouthCenter.x + random(-10, 10), mouthCenter.y + random(-10, 10), particleColor));
+                        }
+                        
+                        // Lógica de sonido (acompaña la acción)
+                        if (frameCount % 10 === 0) {
+                           // Toca un sonido de burbujeo/bass cada 10 frames mientras la boca esté abierta
+                           synth.triggerAttackRelease("G2", "8n", Tone.now(), 0.5);
+                        }
+                    }
+                }
+
+                // Lógica de tiempo y estado de cepillado
+                if (mouthIsOpen) {
+                    mouthOpenTime++;
+                } else {
+                    // Si la boca se cierra, el contador de tiempo baja lentamente
+                    mouthOpenTime = max(0, mouthOpenTime - 5);
+                }
+                
+                // Dibuja el feedback de cepillado
+                drawMouthStatusFeedback(mouthIsOpen);
+
+            } else {
+                // Animación "Loading" (mientras Landmarker se inicializa)
+                drawLoadingAnimation();
+            }
+            
+            // Actualiza y dibuja las partículas
+            for (let i = particles.length - 1; i >= 0; i--) {
+                // La boca está abierta si mouthOpenTime es alto
+                particles[i].update(mouthOpenTime > 0); 
+                particles[i].display();
+                if (particles[i].isFinished()) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
+        // --- Funciones de UI y Animación ---
+
+        function drawLoadingAnimation() {
+            // Animación "Loading" temática de Halloween (Ojo terrorífico)
+            background(BACKGROUND_COLOR); // FIX
+            fill(TEXT_COLOR); // FIX
+            textAlign(CENTER, CENTER);
+            textSize(28);
+            text("CARGANDO HECHIZO (MediaPipe)...", width / 2, height / 2 - 50);
+
+            // Dibuja un ojo que parpadea
+            const pupilSize = map(sin(frameCount * 0.1), -1, 1, 10, 30);
+            const eyeOpen = map(sin(frameCount * 0.05), -1, 1, 5, 40);
+
+            // Esclera (Blanco del ojo - Color de Halloween)
+            fill(HALLOWEEN_PURPLE); // FIX
+            ellipse(width / 2, height / 2 + 30, 80, eyeOpen * 2);
+
+            // Iris (Verde)
+            fill(color(100, 80, 80));
+            ellipse(width / 2, height / 2 + 30, 40, 40);
+
+            // Pupila (Negra)
+            fill(0);
+            ellipse(width / 2, height / 2 + 30, pupilSize, pupilSize);
+        }
+
+        function drawMouthStatusFeedback(isOpen) {
+            // Dibuja un círculo de feedback para el tiempo de cepillado
+            // FIX: Usar constantes JS en lugar de var(--...)
+            const targetColor = isOpen ? HALLOWEEN_ORANGE : HALLOWEEN_PURPLE;
+            const targetSize = isOpen ? 100 : 50;
+            
+            // Indicador visual en la esquina superior derecha
+            const x = width - 50;
+            const y = 50;
+            
+            // Cambia el tamaño y color del feedback basado en el tiempo de apertura
+            const pulse = map(sin(frameCount * 0.2), -1, 1, 0.9, 1.1);
+            const feedbackSize = map(mouthOpenTime, 0, 100, targetSize, targetSize * pulse * 1.5, true);
+            const brushLevel = min(mouthOpenTime * 5, 360); // Max 360 segundos (6 minutos) para la barra
+
+            // Marco exterior
+            noFill();
+            stroke(HALLOWEEN_ORANGE); // FIX
+            strokeWeight(10);
+            ellipse(x, y, 110);
+            
+            // Relleno de "cepillado"
+            strokeWeight(10);
+            stroke(color(100, 80, 80)); // Color Slime
+            if (brushLevel > 0) {
+                 arc(x, y, 100, 100, 0, radians(brushLevel));
+            }
+
+            // Texto de estado
+            fill(TEXT_COLOR); // FIX
+            noStroke();
+            textSize(12);
+            text(`Boca Abierta: ${nf(mouthOpenTime/60, 0, 1)}s`, x, y + 60);
+
+            // Icono de estatus
+            textSize(32);
+            text(isOpen ? '👻' : '😈', x, y);
+        }
+
+        // --- Manejo del DOM y Eventos ---
+
+        document.getElementById('startButton').addEventListener('click', async () => {
+            // Evita doble inicialización y asegura que p5.js haya llamado a createCapture
+            if (!isStarted) {
+                isStarted = true;
+                document.getElementById('startButton').classList.add('hidden');
+                document.getElementById('canvas-container').classList.remove('hidden');
+                
+                // Inicializa el contexto de audio después de la interacción del usuario
+                // FIX: Asegurarse de que Tone.js esté completamente iniciado
+                try {
+                    await Tone.start();
+                    console.log('Audio context iniciado correctamente');
+                } catch (err) {
+                    console.warn('Error al iniciar audio:', err);
+                }
+                
+                // Iniciar la cámara después de la interacción del usuario
+                if (!video) {
+                    try {
+                        video = createCapture(VIDEO, () => {
+                            console.log('Cámara iniciada correctamente');
+                            video.size(800, 600);
+                            video.hide(); // Ocultamos el elemento DOM del video ya que lo dibujaremos en el canvas
+                            initializeLandmarker(); // Iniciar la carga del modelo MediaPipe
+                        }, (err) => {
+                            console.error('Error al acceder a la cámara:', err);
+                            alert('No se pudo acceder a la cámara. Por favor, verifica los permisos del navegador.');
+                        });
+                        video.elt.muted = true;
+                        video.elt.autoplay = true;
+                    } catch (err) {
+                        console.error('Error creando captura de video:', err);
+                        alert('Error al iniciar la cámara: ' + err.message);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
