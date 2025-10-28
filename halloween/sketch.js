@@ -69,6 +69,7 @@ class Particle {
     translate(this.pos.x, this.pos.y);
     rotate(this.angle);
     noStroke();
+    
     if (this.type === 'spark') {
       // chispa circular con alpha que decae con la edad
       fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], map(this.age, 0, this.life, 255, 0));

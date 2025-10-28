@@ -23,13 +23,17 @@
 
   <link rel="stylesheet" href="style.css">
 
-  <!-- p5.js -->
+  <!-- p5.js (usar versión local 1.10.0 para compatibilidad con p5.sound 1.x) -->
   <script src="libraries/p5.min.js"></script>
   <script src="libraries/p5.sound.min.js"></script>
 
-  <!-- MediaPipe Face Mesh (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <!-- MediaPipe Face Mesh (CDN) 
+  https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js 
+  https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js
+  -->
+
+  <script src="libraries/face_mesh.js"></script>
+  <script src="libraries/camera_utils.js"></script>
 
   <!-- Our sketch -->
   <script src="sketch.js" defer></script>
