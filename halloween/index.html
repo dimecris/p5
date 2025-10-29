@@ -23,19 +23,20 @@
 
   <link rel="stylesheet" href="style.css">
 
-  <!-- p5.js (usar versión local 1.10.0 para compatibilidad con p5.sound 1.x) -->
-  <script src="libraries/p5.min.js"></script>
-  <script src="libraries/p5.sound.min.js"></script>
+  <!-- Desactivo Friendly Errors de p5 para rendimiento -->
+  <script>window.p5DisableFriendlyErrors = true;</script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.0.5/lib/p5.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5.sound@0.2.0/dist/p5.sound.min.js"></script>
 
   <!-- MediaPipe Face Mesh (CDN) 
   https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js 
   https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js
   -->
 
-  <script src="libraries/face_mesh.js"></script>
-  <script src="libraries/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
 
-  <!-- Our sketch -->
+  <!-- Our sketch (primero las dependencias, luego el sketch) -->
+  <script src="particulas.js" defer></script>
   <script src="sketch.js" defer></script>
 </head>
 <body>
@@ -60,7 +61,5 @@
   </div>
 
   <!-- Canvas will be injected by p5 -->
-  <!-- Audio -->
-  <audio id="spookySound" src="assets/music/halloween-bells-and-strings-loop_dm_124bpm_master-410508.mp3" preload="auto"></audio>
 </body>
 </html>

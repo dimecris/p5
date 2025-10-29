@@ -1,13 +1,13 @@
 {
-  "name": "healthysmile-halloween",
+  "name": "sonrisaSaludable-Halloween",
   "version": "0.1.0",
-  "description": "HealthySmile — digital toothbrushing (p5.js + MediaPipe Face Mesh) with Halloween theme, packaged with Electron.",
+  "description": "SonrisaSaludable — cepillado dental digital (p5.js + MediaPipe Face Mesh) con tema de Halloween, empaquetado con Electron.",
   "main": "main.js",
-  "author": "dimecris",
+  "author": "Kris Darias",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "postinstall": "echo 'Install complete.'"
+    "postinstall": "echo 'Instalación completada.'"
   },
   "devDependencies": {
     "electron": "^26.0.0"

@@ -1,7 +1,7 @@
 // main.js (Electron main process)
 // Creates a fullscreen kiosk window optimized for 1080p
 
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, session } = require('electron')
 const path = require('path')
 
 const createWindow = () => {
@@ -17,15 +17,27 @@ const createWindow = () => {
     }
   })
 
-  
-
   win.loadFile('index.html')
-  
-  // Descomentar para debug:
-  win.webContents.openDevTools({ mode: 'detach' })
+
+  // Abrir DevTools solo si DEBUG=1
+  if (process.env.DEBUG === '1') {
+    win.webContents.openDevTools({ mode: 'detach' })
+  }
 }
 
 app.whenReady().then(() => {
+  // Conceder permisos de cámara (y audio si se pidiera) sin mostrar prompt en kiosk
+  try {
+    session.defaultSession.setPermissionRequestHandler((wc, permission, callback) => {
+      // Concedo cámara y micrófono sin prompt (kiosko)
+      if (permission === 'media' || permission === 'camera' || permission === 'microphone') {
+        return callback(true)
+      }
+      // Resto: permitir por defecto (ajusta si necesitas más control)
+      callback(true)
+    })
+  } catch (_) {}
+
   createWindow()
   
   // macOS: recrear ventana si se cierra
